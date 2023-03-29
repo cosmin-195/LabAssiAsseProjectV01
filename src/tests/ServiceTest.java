@@ -15,6 +15,8 @@ import validation.StudentValidator;
 import validation.TemaValidator;
 import validation.Validator;
 
+import java.util.Iterator;
+
 class ServiceTest {
 
     private Service service;
@@ -32,16 +34,76 @@ class ServiceTest {
     }
 
     @Test
-    void testSaveStudentCheckName() {
-        service.saveStudent("1","Jerry",934);
-        Assertions.assertEquals(service.findAllStudents().iterator().next().getID(),"1");
+    void testSaveStudentCheckNameNonNull() {
+        service.saveStudent("1",null,934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
         service.deleteStudent("1");
     }
 
     @Test
-    void testSaveStudentCheckId() {
+    void testSaveStudentCheckNameNonEmpty() {
+        service.saveStudent("1","",934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckNameNotEmpty() {
+        service.saveStudent("1",null,934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckSpecialChars() {
+        service.saveStudent("1","Baro$an777",934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckStartingLetterUpper() {
+        service.saveStudent("1","grigore",934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+
+    @Test
+    void testSaveStudentCheckIdNonNull() {
+        service.saveStudent(null,"Jerry",934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckIdNotEmpty() {
+        service.saveStudent("","Jerry",934);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckIdUnique() {
         service.saveStudent("1","Jerry",934);
-        Assertions.assertEquals(service.findAllStudents().iterator().next().getNume(),"Jerry");
+        service.saveStudent("1","Definitely Not Jerry",934);
+        Iterator<Student> it = service.findAllStudents().iterator();
+        it.next();
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckGroupGreaterThan0() {
+        service.saveStudent("1","Jerry",-1);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
+        service.deleteStudent("1");
+    }
+
+    @Test
+    void testSaveStudentCheckGroupTooBig() {
+        service.saveStudent("1","Jerry",1000);
+        Assertions.assertFalse(service.findAllStudents().iterator().hasNext());
         service.deleteStudent("1");
     }
 }
